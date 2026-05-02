@@ -43,16 +43,16 @@ const REAL_STARS = [
 ];
 
 const PLANET_DATA = {
-    'merkür': { name: 'Merkür', dist: '91 Milyon km', travelTime: '3-6 Ay', info: 'Güneşe en yakın gezegen.', img: 'https://images.unsplash.com/photo-1614732414444-af9613f3f1a3?w=600&q=80', parent: 'Güneş Sistemi', index: 1, tex: '/textures/moon.jpg' }, // Fallback to moon tex for mercury
-    'venüs': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=600&q=80', parent: 'Güneş Sistemi', index: 1.5, tex: '/textures/venus.jpg' },
-    'venus': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=600&q=80', parent: 'Güneş Sistemi', index: 1.5, tex: '/textures/venus.jpg' },
-    'dünya': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?w=600&q=80', parent: 'Güneş Sistemi', index: 2, tex: '/textures/earth.jpg' },
-    'earth': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?w=600&q=80', parent: 'Güneş Sistemi', index: 2, tex: '/textures/earth.jpg' },
-    'ay': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://images.unsplash.com/photo-1522030239044-dd671f3e748d?w=600&q=80', parent: 'Güneş Sistemi', index: 2.2, tex: '/textures/moon.jpg' },
-    'moon': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://images.unsplash.com/photo-1522030239044-dd671f3e748d?w=600&q=80', parent: 'Güneş Sistemi', index: 2.2, tex: '/textures/moon.jpg' },
-    'mars': { name: 'Mars', dist: '78 Milyon km', travelTime: '6-9 Ay', info: 'Kızıl gezegen.', img: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=80', parent: 'Güneş Sistemi', index: 3, tex: '/textures/mars.jpg' },
-    'jüpiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://images.unsplash.com/photo-1630839437035-dac17da580d0?w=600&q=80', parent: 'Güneş Sistemi', index: 4, tex: '/textures/jupiter.jpg' },
-    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://images.unsplash.com/photo-1630839437035-dac17da580d0?w=600&q=80', parent: 'Güneş Sistemi', index: 4, tex: '/textures/jupiter.jpg' }
+    'merkür': { name: 'Merkür', dist: '91 Milyon km', travelTime: '3-6 Ay', info: 'Güneşe en yakın gezegen.', img: 'https://images.unsplash.com/photo-1614732414444-af9613f3f1a3?w=600&q=80', parent: 'Güneş Sistemi', index: 1, tex: 'textures/moon.jpg' }, // Fallback to moon tex for mercury
+    'venüs': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=600&q=80', parent: 'Güneş Sistemi', index: 1.5, tex: 'textures/venus.jpg' },
+    'venus': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=600&q=80', parent: 'Güneş Sistemi', index: 1.5, tex: 'textures/venus.jpg' },
+    'dünya': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?w=600&q=80', parent: 'Güneş Sistemi', index: 2, tex: 'textures/earth.jpg' },
+    'earth': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?w=600&q=80', parent: 'Güneş Sistemi', index: 2, tex: 'textures/earth.jpg' },
+    'ay': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://images.unsplash.com/photo-1522030239044-dd671f3e748d?w=600&q=80', parent: 'Güneş Sistemi', index: 2.2, tex: 'textures/moon.jpg' },
+    'moon': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://images.unsplash.com/photo-1522030239044-dd671f3e748d?w=600&q=80', parent: 'Güneş Sistemi', index: 2.2, tex: 'textures/moon.jpg' },
+    'mars': { name: 'Mars', dist: '78 Milyon km', travelTime: '6-9 Ay', info: 'Kızıl gezegen.', img: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=80', parent: 'Güneş Sistemi', index: 3, tex: 'textures/mars.jpg' },
+    'jüpiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://images.unsplash.com/photo-1630839437035-dac17da580d0?w=600&q=80', parent: 'Güneş Sistemi', index: 4, tex: 'textures/jupiter.jpg' },
+    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://images.unsplash.com/photo-1630839437035-dac17da580d0?w=600&q=80', parent: 'Güneş Sistemi', index: 4, tex: 'textures/jupiter.jpg' }
 };
 
 const PARAMS = { count: 250000, size: 0.008, radius: 12, branches: 4, spin: 0.8, randomness: 0.25, randomnessPower: 3, insideColor: '#ffbb77', outsideColor: '#3d61ff' };
