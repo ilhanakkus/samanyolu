@@ -61,7 +61,7 @@ const PLANET_DATA = {
     'neptune': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' }
 };
 
-const PARAMS = { count: 350000, size: 0.006, radius: 12, branches: 4, spin: 1.0, randomness: 0.2, randomnessPower: 3, insideColor: '#00d2ff', outsideColor: '#002288' };
+const PARAMS = { count: 120000, size: 0.25, radius: 14, branches: 5, spin: 1.2, randomness: 0.35, randomnessPower: 3, coreColor: '#ffebd6', midColor: '#00d2ff', outsideColor: '#001155' };
 
 let scene, camera, renderer, controls, composer, textureLoader, bloomPass;
 let galaxyPoints, raycaster, mouse;
@@ -126,21 +126,73 @@ function handleSearch(query) {
 }
 
 function createGalaxy() {
+    if(galaxyPoints) { scene.remove(galaxyPoints); galaxyPoints.geometry.dispose(); galaxyPoints.material.dispose(); }
     const geometry = new THREE.BufferGeometry();
     const pos = new Float32Array(PARAMS.count * 3), col = new Float32Array(PARAMS.count * 3);
-    const cIn = new THREE.Color(PARAMS.insideColor), cOut = new THREE.Color(PARAMS.outsideColor);
+    const cCore = new THREE.Color(PARAMS.coreColor);
+    const cMid = new THREE.Color(PARAMS.midColor);
+    const cOut = new THREE.Color(PARAMS.outsideColor);
+    
     for (let i = 0; i < PARAMS.count; i++) {
-        const i3 = i * 3, r = Math.random() * PARAMS.radius, s = r * PARAMS.spin, b = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
-        pos[i3] = Math.cos(b + s) * r + Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1) * 0.25 * r;
-        pos[i3+1] = Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1) * 0.25 * r * 0.4;
-        pos[i3+2] = Math.sin(b + s) * r + Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1) * 0.25 * r;
-        const c = cIn.clone().lerp(cOut, r / PARAMS.radius);
-        col[i3] = c.r; col[i3+1] = c.g; col[i3+2] = c.b;
+        const i3 = i * 3, r = Math.random() * PARAMS.radius;
+        const spinAngle = r * PARAMS.spin;
+        const branchAngle = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
+        
+        const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+        const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r * 0.3;
+        const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+
+        pos[i3] = Math.cos(branchAngle + spinAngle) * r + randomX;
+        pos[i3 + 1] = randomY;
+        pos[i3 + 2] = Math.sin(branchAngle + spinAngle) * r + randomZ;
+        
+        let mixColor = new THREE.Color();
+        const distRatio = r / PARAMS.radius;
+        if(distRatio < 0.25) {
+            mixColor.copy(cCore).lerp(cMid, distRatio / 0.25);
+        } else {
+            mixColor.copy(cMid).lerp(cOut, (distRatio - 0.25) / 0.75);
+        }
+        
+        col[i3] = mixColor.r; col[i3 + 1] = mixColor.g; col[i3 + 2] = mixColor.b;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    galaxyPoints = new THREE.Points(geometry, new THREE.PointsMaterial({ size: PARAMS.size, blending: THREE.AdditiveBlending, vertexColors: true, transparent: true, opacity: 0.7 }));
+    
+    const ptCanvas = document.createElement('canvas'); ptCanvas.width = 32; ptCanvas.height = 32;
+    const ctx = ptCanvas.getContext('2d');
+    const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,32,32);
+    const ptTex = new THREE.CanvasTexture(ptCanvas);
+
+    galaxyPoints = new THREE.Points(geometry, new THREE.PointsMaterial({ 
+        size: PARAMS.size, 
+        sizeAttenuation: true, 
+        depthWrite: false, 
+        blending: THREE.AdditiveBlending, 
+        vertexColors: true, 
+        transparent: true, 
+        opacity: 0.6,
+        map: ptTex
+    }));
     scene.add(galaxyPoints);
+    
+    // Central Mass Effect Glow
+    const coreGlowCanvas = document.createElement('canvas'); coreGlowCanvas.width = 256; coreGlowCanvas.height = 256;
+    const ctxC = coreGlowCanvas.getContext('2d');
+    const gradC = ctxC.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gradC.addColorStop(0, 'rgba(255, 230, 180, 1)');
+    gradC.addColorStop(0.15, 'rgba(255, 200, 100, 0.6)');
+    gradC.addColorStop(0.4, 'rgba(0, 170, 255, 0.2)');
+    gradC.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctxC.fillStyle = gradC; ctxC.fillRect(0,0,256,256);
+    const coreTex = new THREE.CanvasTexture(coreGlowCanvas);
+    const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: coreTex, blending: THREE.AdditiveBlending, depthWrite: false }));
+    coreSprite.scale.set(12, 12, 1);
+    galaxyPoints.add(coreSprite);
 }
 
 function createStarSystems() {
