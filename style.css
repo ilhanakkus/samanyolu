@@ -1,9 +1,11 @@
 :root {
-    --primary-glow: rgba(0, 210, 255, 0.4);
+    --primary-glow: rgba(0, 210, 255, 0.6);
     --bg-dark: #020205;
-    --text-light: #ffffff;
-    --glass-bg: rgba(10, 10, 20, 0.6);
+    --text-light: #e0f7fa;
+    --panel-bg: rgba(5, 10, 20, 0.85);
     --accent: #00d2ff;
+    --accent-orange: #ff8c00;
+    --border-color: rgba(0, 210, 255, 0.3);
 }
 
 * {
@@ -13,12 +15,27 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Rajdhani', 'Orbitron', sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-light);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
+}
+
+/* Scanlines Effect */
+body::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 100;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
 }
 
 #galaxy-canvas {
@@ -43,28 +60,30 @@ body {
 header {
     pointer-events: auto;
     max-width: 500px;
+    border-left: 3px solid var(--accent);
+    padding-left: 1.5rem;
+    background: linear-gradient(90deg, rgba(0, 210, 255, 0.1) 0%, transparent 100%);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 h1 {
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: -1px;
-    background: linear-gradient(to right, #fff, var(--accent), #fff);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 5s linear infinite;
-}
-
-@keyframes shine {
-    to { background-position: 200% center; }
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--primary-glow);
 }
 
 header p {
     font-size: 1rem;
-    opacity: 0.6;
+    opacity: 0.8;
     margin-top: 0.5rem;
-    font-weight: 300;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0c4d8;
 }
 
 #search-container {
@@ -75,22 +94,28 @@ header p {
 
 #star-search {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: rgba(0, 20, 40, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
     padding: 0.8rem 1rem 0.8rem 2.8rem;
-    color: white;
+    color: var(--accent);
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
     outline: none;
     transition: all 0.3s;
-    backdrop-filter: blur(10px);
+}
+
+#star-search::placeholder {
+    color: rgba(0, 210, 255, 0.4);
 }
 
 #star-search:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    background: rgba(0, 40, 80, 0.8);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+    color: var(--accent-orange);
 }
 
 .search-icon {
@@ -100,8 +125,12 @@ header p {
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
-    fill: rgba(255, 255, 255, 0.5);
+    fill: var(--accent);
     pointer-events: none;
+}
+
+#star-search:focus + .search-icon {
+    fill: var(--accent-orange);
 }
 
 #info-panel {
@@ -109,39 +138,54 @@ header p {
     right: 3rem;
     top: 50%;
     transform: translateY(-50%);
-    width: 360px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
+    width: 380px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--accent-orange);
     padding: 2rem;
     pointer-events: auto;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
 }
 
 #info-panel.hidden {
-    right: -450px;
+    right: -500px;
     opacity: 0;
 }
 
 .panel-content h2 {
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
-    color: #fff;
-    text-shadow: 0 0 10px var(--primary-glow);
+    color: var(--accent-orange);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+    padding-bottom: 0.5rem;
 }
 
 #star-image-container {
     width: 100%;
-    height: 180px;
+    height: 200px;
     margin-bottom: 1.5rem;
-    border-radius: 16px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--accent);
+    position: relative;
+}
+
+#star-image-container::before {
+    content: "SCANNING...";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    opacity: 0.5;
+    z-index: 2;
 }
 
 #star-image {
@@ -149,6 +193,7 @@ header p {
     height: 100%;
     object-fit: cover;
     transition: opacity 0.5s;
+    filter: contrast(1.2) brightness(0.9);
 }
 
 #star-image.hidden {
@@ -157,36 +202,40 @@ header p {
 
 .stat-item {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 1.2rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    background: rgba(0, 210, 255, 0.05);
+    border-left: 2px solid var(--accent);
 }
 
 .label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    opacity: 0.5;
-    margin-bottom: 0.2rem;
+    color: #a0c4d8;
 }
 
 .value {
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 1px;
 }
 
 hr {
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--border-color);
     margin: 1.5rem 0;
 }
 
 h3 {
-    font-size: 0.9rem;
+    font-size: 1rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     margin-bottom: 1rem;
-    opacity: 0.6;
+    color: var(--accent);
 }
 
 #planet-list {
@@ -196,48 +245,76 @@ h3 {
 
 #planet-list li {
     font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-left: 3px solid var(--accent-orange);
     margin-bottom: 0.6rem;
-    color: rgba(255,255,255,0.8);
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s;
+}
+
+#planet-list li:hover {
+    background: rgba(255, 140, 0, 0.1);
 }
 
 #region-description {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     line-height: 1.6;
-    opacity: 0.5;
-    font-weight: 300;
+    color: #88aab8;
+    font-weight: 500;
+    padding-top: 1rem;
 }
 
 #close-panel {
     width: 100%;
     margin-top: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    padding: 0.8rem;
-    border-radius: 12px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 1rem;
     cursor: pointer;
     transition: all 0.3s;
     font-family: inherit;
-    font-weight: 500;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 #close-panel:hover {
     background: var(--accent);
     color: #000;
-    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--primary-glow);
 }
 
 footer {
     text-align: left;
+    pointer-events: auto;
 }
 
 .hint {
-    font-size: 0.75rem;
-    opacity: 0.4;
-    letter-spacing: 1px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 2px;
     text-transform: uppercase;
+    background: rgba(0, 20, 40, 0.8);
+    padding: 0.5rem 1rem;
+    border-left: 3px solid var(--accent-orange);
+    display: inline-block;
+}
+
+/* Custom Scrollbar for Terminal */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-orange);
 }

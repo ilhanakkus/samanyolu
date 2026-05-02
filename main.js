@@ -61,7 +61,7 @@ const PLANET_DATA = {
     'neptune': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' }
 };
 
-const PARAMS = { count: 250000, size: 0.008, radius: 12, branches: 4, spin: 0.8, randomness: 0.25, randomnessPower: 3, insideColor: '#ffbb77', outsideColor: '#3d61ff' };
+const PARAMS = { count: 350000, size: 0.006, radius: 12, branches: 4, spin: 1.0, randomness: 0.2, randomnessPower: 3, insideColor: '#00d2ff', outsideColor: '#002288' };
 
 let scene, camera, renderer, controls, composer, textureLoader, bloomPass;
 let galaxyPoints, raycaster, mouse;
@@ -71,7 +71,7 @@ let systemGroup;
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(15, 10, 15);
+    camera.position.set(18, 6, 18);
     const canvas = document.querySelector('#galaxy-canvas');
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -80,7 +80,7 @@ function init() {
     textureLoader = new THREE.TextureLoader();
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
+    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.6, 0.85);
     composer.addPass(bloomPass);
 
     controls = new OrbitControls(camera, canvas);
@@ -166,8 +166,17 @@ function setupLocalSystem() { systemGroup = new THREE.Group(); systemGroup.visib
 function updateLocalSystem(data, targetPlanet = null) {
     while(systemGroup.children.length > 0) systemGroup.remove(systemGroup.children[0]);
     if (!targetPlanet) {
-        const sun = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xffaa00, emissiveIntensity: 1 }));
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xffaa00, emissiveIntensity: 2 }));
         systemGroup.add(sun); systemGroup.add(new THREE.PointLight(0xffffff, 2, 10));
+        
+        // Mass Effect Style Orbital Rings
+        for(let i=1; i<=6; i++) {
+            const ringGeo = new THREE.RingGeometry(i*0.3, i*0.3 + 0.003, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff, side: THREE.DoubleSide, transparent: true, opacity: 0.25 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            systemGroup.add(ring);
+        }
     } else {
         // REAL TEXTURE FROM LOCAL PATH
         const pGeo = new THREE.SphereGeometry(0.12, 64, 64);
@@ -207,8 +216,8 @@ function zoomToPlanet(starPos, starData, planetData) {
     planetListEl.innerHTML = `<li>${planetData.name} (Hedef)</li>`; regionDescEl.innerText = planetData.info;
     if(planetData.img) { starImgEl.src = planetData.img; starImgEl.classList.remove('hidden'); }
     infoPanel.classList.remove('hidden');
-    gsap.to(camera.position, { x: starPos.x + 0.3, y: starPos.y + 0.1, z: starPos.z + 0.3, duration: 2 });
-    gsap.to(controls.target, { x: starPos.x, y: starPos.y, z: starPos.z, duration: 2 });
+    gsap.to(camera.position, { x: starPos.x + 0.4, y: starPos.y + 0.1, z: starPos.z + 0.4, duration: 2.5, ease: 'power3.inOut' });
+    gsap.to(controls.target, { x: starPos.x, y: starPos.y, z: starPos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
 function zoomTo(pos, data) {
@@ -221,11 +230,11 @@ function zoomTo(pos, data) {
     planetListEl.innerHTML = data.planets.map(p => `<li>${p}</li>`).join(''); regionDescEl.innerText = data.info;
     if(data.img) { starImgEl.src = data.img; starImgEl.classList.remove('hidden'); } else starImgEl.classList.add('hidden');
     infoPanel.classList.remove('hidden');
-    gsap.to(camera.position, { x: pos.x+1, y: pos.y+0.5, z: pos.z+1, duration: 2 });
-    gsap.to(controls.target, { x: pos.x, y: pos.y, z: pos.z, duration: 2 });
+    gsap.to(camera.position, { x: pos.x+1.5, y: pos.y+0.3, z: pos.z+1.5, duration: 2.5, ease: 'power3.inOut' });
+    gsap.to(controls.target, { x: pos.x, y: pos.y, z: pos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
-function resetView() { bloomPass.strength = 1.0; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 15, y: 10, z: 15, duration: 2 }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2 }); }
+function resetView() { bloomPass.strength = 1.8; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 18, y: 6, z: 18, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
 function onMouseMove(e) { mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1; }
 function onWindowResize() { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); }
 function animate() { requestAnimationFrame(animate); controls.update(); if(systemGroup.visible) systemGroup.rotation.y += 0.005; composer.render(); }
