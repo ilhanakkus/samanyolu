@@ -255,23 +255,28 @@ function onCanvasClick() {
 }
 
 function zoomToPlanet(starPos, starData, planetData) {
-    bloomPass.strength = 0; 
+    bloomPass.strength = 0.5; 
     controls.autoRotate = false; 
     updateLocalSystem(starData, planetData); 
     systemGroup.position.copy(starPos); 
     systemGroup.visible = true;
+    galaxyPoints.visible = false;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = false; });
     starNameEl.innerText = planetData.name; distanceEl.innerText = planetData.dist; systemTypeEl.innerText = 'Gezegen'; travelTimeEl.innerText = planetData.travelTime;
     planetListEl.innerHTML = `<li>${planetData.name} (Hedef)</li>`; regionDescEl.innerText = planetData.info;
     if(planetData.img) { starImgEl.src = planetData.img; starImgEl.classList.remove('hidden'); }
     infoPanel.classList.remove('hidden');
-    gsap.to(camera.position, { x: starPos.x + 0.4, y: starPos.y + 0.1, z: starPos.z + 0.4, duration: 2.5, ease: 'power3.inOut' });
+    gsap.to(camera.position, { x: starPos.x + 0.5, y: starPos.y + 0.25, z: starPos.z + 0.5, duration: 2.5, ease: 'power3.inOut' });
     gsap.to(controls.target, { x: starPos.x, y: starPos.y, z: starPos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
 function zoomTo(pos, data) {
     bloomPass.strength = 1.0;
-    controls.autoRotate = false; updateLocalSystem(data); systemGroup.position.copy(pos); systemGroup.visible = true;
+    controls.autoRotate = false; 
+    updateLocalSystem(data); 
+    systemGroup.position.copy(pos); 
+    systemGroup.visible = true;
+    galaxyPoints.visible = false;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; });
     starNameEl.innerText = data.name; systemTypeEl.innerText = data.type; travelTimeEl.innerText = data.travelTime;
     distanceEl.innerText = data.name === 'Güneş Sistemi' ? '0 km' : (pos.distanceTo(new THREE.Vector3(7.8,0,2.5)) * 2500).toFixed(0) + " Işık Yılı";
@@ -282,7 +287,7 @@ function zoomTo(pos, data) {
     gsap.to(controls.target, { x: pos.x, y: pos.y, z: pos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
-function resetView() { bloomPass.strength = 1.5; infoPanel.classList.add('hidden'); systemGroup.visible = false; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 15, y: 10, z: 20, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
+function resetView() { bloomPass.strength = 1.5; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 15, y: 10, z: 20, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
 function onMouseMove(e) { mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1; }
 function onWindowResize() { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); }
 function animate() { requestAnimationFrame(animate); controls.update(); if(systemGroup.visible) systemGroup.rotation.y += 0.005; composer.render(); }
