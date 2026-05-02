@@ -59,6 +59,8 @@ const PLANET_DATA = {
     'uranus': { name: 'Uranüs', dist: '2.6 Milyar km', travelTime: '9 Yıl', info: 'Buz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg', parent: 'Güneş Sistemi', index: 6, tex: '/textures/uranus.jpg' },
     'neptün': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' },
     'neptune': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' }
+};
+
 const PARAMS = { 
     radius: 18, 
     branches: 4, 
