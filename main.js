@@ -62,27 +62,22 @@ const PLANET_DATA = {
 };
 
 const PARAMS = { 
-    starsCount: 80000, 
-    dustCount: 150000,
-    radius: 16, 
-    branches: 4, 
-    spin: 1.5, 
-    randomness: 0.25, 
-    randomnessPower: 3.5, 
-    coreColor: '#ffe4c4', // Warm whitish-orange core (Milky Way)
-    midColor: '#00d2ff', // Cyan mid-arms
-    outsideColor: '#000a33' // Deep dark blue edges
+    dustCount: 300000, // Massive count for solid glowing dust look
+    radius: 20, 
+    coreColor: '#ffffff', // Pure white core
+    midColor: '#00ffff', // Electric cyan
+    outsideColor: '#001188' // Deep royal blue
 };
 
 let scene, camera, renderer, controls, composer, textureLoader, bloomPass;
-let galaxyPoints, dustPoints, raycaster, mouse;
+let dustPoints, raycaster, mouse;
 let infoPanel, starNameEl, distanceEl, systemTypeEl, planetListEl, regionDescEl, starImgEl, travelTimeEl;
 let systemGroup;
 
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(20, 12, 20);
+    camera.position.set(0, 5, 25); // Edge-on, highly flattened cinematic angle
     const canvas = document.querySelector('#galaxy-canvas');
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -91,7 +86,7 @@ function init() {
     textureLoader = new THREE.TextureLoader();
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.6, 0.5, 0.85);
+    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.5, 0.6, 0.7); // Extreme bloom
     composer.addPass(bloomPass);
 
     controls = new OrbitControls(camera, canvas);
@@ -149,28 +144,27 @@ function generateGalaxyGeometry(count) {
     for (let i = 0; i < count; i++) {
         const i3 = i * 3;
         
-        // Use an exponential/logarithmic distribution to cluster at center
-        const r = Math.pow(Math.random(), 1.5) * PARAMS.radius;
-        const spinAngle = r * PARAMS.spin;
-        const branchAngle = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
+        // Continuous dense disk, heavily weighted to the center
+        const r = Math.pow(Math.random(), 2.5) * PARAMS.radius;
+        const angle = Math.random() * Math.PI * 2; // Full circle, no distinct branches
         
-        // Taper randomness towards the center for a dense core
-        const taper = r / PARAMS.radius;
-        const randSpread = PARAMS.randomness * taper;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
         
-        const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r;
-        const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r * 0.2; // Very flat disk
-        const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r;
+        // Very thin, strictly flat disk
+        const taper = Math.max(0, 1 - (r / PARAMS.radius));
+        const y = (Math.random() - 0.5) * 0.3 * Math.pow(taper, 3);
 
-        pos[i3] = Math.cos(branchAngle + spinAngle) * r + randomX;
-        pos[i3 + 1] = randomY + (Math.random() - 0.5) * 0.1 * (1 - taper); // Central bulge thickness
-        pos[i3 + 2] = Math.sin(branchAngle + spinAngle) * r + randomZ;
+        pos[i3] = x;
+        pos[i3 + 1] = y;
+        pos[i3 + 2] = z;
         
         let mixColor = new THREE.Color();
-        if(taper < 0.2) {
-            mixColor.copy(cCore).lerp(cMid, taper / 0.2);
+        const colorTaper = r / PARAMS.radius;
+        if(colorTaper < 0.15) {
+            mixColor.copy(cCore).lerp(cMid, colorTaper / 0.15);
         } else {
-            mixColor.copy(cMid).lerp(cOut, (taper - 0.2) / 0.8);
+            mixColor.copy(cMid).lerp(cOut, (colorTaper - 0.15) / 0.85);
         }
         
         col[i3] = mixColor.r; col[i3 + 1] = mixColor.g; col[i3 + 2] = mixColor.b;
@@ -181,10 +175,9 @@ function generateGalaxyGeometry(count) {
 }
 
 function createGalaxy() {
-    if(galaxyPoints) { scene.remove(galaxyPoints); galaxyPoints.geometry.dispose(); galaxyPoints.material.dispose(); }
     if(dustPoints) { scene.remove(dustPoints); dustPoints.geometry.dispose(); dustPoints.material.dispose(); }
     
-    // 1. DUST CLOUDS (Large, soft, highly transparent)
+    // DUST CLOUDS (Solid continuous glowing disk)
     const dustGeo = generateGalaxyGeometry(PARAMS.dustCount);
     const ptCanvas = document.createElement('canvas'); ptCanvas.width = 64; ptCanvas.height = 64;
     const ctx = ptCanvas.getContext('2d');
@@ -196,44 +189,30 @@ function createGalaxy() {
     const dustTex = new THREE.CanvasTexture(ptCanvas);
 
     dustPoints = new THREE.Points(dustGeo, new THREE.PointsMaterial({ 
-        size: 0.6, // Large clouds
+        size: 0.35,
         sizeAttenuation: true, 
         depthWrite: false, 
         blending: THREE.AdditiveBlending, 
         vertexColors: true, 
         transparent: true, 
-        opacity: 0.15,
+        opacity: 0.3,
         map: dustTex
     }));
     scene.add(dustPoints);
-
-    // 2. SHARP STARS (Tiny, sharp, opaque)
-    const starGeo = generateGalaxyGeometry(PARAMS.starsCount);
-    galaxyPoints = new THREE.Points(starGeo, new THREE.PointsMaterial({ 
-        size: 0.015, // Tiny pinpricks
-        sizeAttenuation: true, 
-        depthWrite: false, 
-        blending: THREE.AdditiveBlending, 
-        vertexColors: true, 
-        transparent: true, 
-        opacity: 0.9
-    }));
-    scene.add(galaxyPoints);
     
-    // 3. CENTRAL BULGE GLOW (Mass Effect Core)
+    // CENTRAL BULGE GLOW (Mass Effect Core) - Blinding white/cyan center
     const coreGlowCanvas = document.createElement('canvas'); coreGlowCanvas.width = 256; coreGlowCanvas.height = 256;
     const ctxC = coreGlowCanvas.getContext('2d');
     const gradC = ctxC.createRadialGradient(128, 128, 0, 128, 128, 128);
-    gradC.addColorStop(0, 'rgba(255, 240, 200, 1)');
-    gradC.addColorStop(0.2, 'rgba(255, 210, 140, 0.7)');
-    gradC.addColorStop(0.5, 'rgba(0, 180, 255, 0.2)');
+    gradC.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradC.addColorStop(0.1, 'rgba(0, 255, 255, 0.8)');
+    gradC.addColorStop(0.4, 'rgba(0, 100, 255, 0.2)');
     gradC.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctxC.fillStyle = gradC; ctxC.fillRect(0,0,256,256);
     const coreTex = new THREE.CanvasTexture(coreGlowCanvas);
     const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: coreTex, blending: THREE.AdditiveBlending, depthWrite: false }));
-    // Reduced core size so it doesn't wash out the arms
-    coreSprite.scale.set(6, 6, 1);
-    galaxyPoints.add(coreSprite);
+    coreSprite.scale.set(16, 16, 1);
+    dustPoints.add(coreSprite);
 }
 
 function createStarSystems() {
@@ -303,7 +282,6 @@ function zoomToPlanet(starPos, starData, planetData) {
     updateLocalSystem(starData, planetData); 
     systemGroup.position.copy(starPos); 
     systemGroup.visible = true;
-    galaxyPoints.visible = false;
     dustPoints.visible = false;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = false; });
     starNameEl.innerText = planetData.name; distanceEl.innerText = planetData.dist; systemTypeEl.innerText = 'Gezegen'; travelTimeEl.innerText = planetData.travelTime;
@@ -317,7 +295,6 @@ function zoomToPlanet(starPos, starData, planetData) {
 function zoomTo(pos, data) {
     bloomPass.strength = 1.0;
     controls.autoRotate = false; updateLocalSystem(data); systemGroup.position.copy(pos); systemGroup.visible = true;
-    galaxyPoints.visible = true;
     dustPoints.visible = true;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; });
     starNameEl.innerText = data.name; systemTypeEl.innerText = data.type; travelTimeEl.innerText = data.travelTime;
@@ -329,7 +306,7 @@ function zoomTo(pos, data) {
     gsap.to(controls.target, { x: pos.x, y: pos.y, z: pos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
-function resetView() { bloomPass.strength = 1.6; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; dustPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 20, y: 12, z: 20, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
+function resetView() { bloomPass.strength = 2.5; infoPanel.classList.add('hidden'); systemGroup.visible = false; dustPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 0, y: 5, z: 25, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
 function onMouseMove(e) { mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1; }
 function onWindowResize() { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); }
 function animate() { requestAnimationFrame(animate); controls.update(); if(systemGroup.visible) systemGroup.rotation.y += 0.005; composer.render(); }
