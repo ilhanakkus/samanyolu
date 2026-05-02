@@ -61,33 +61,47 @@ const PLANET_DATA = {
     'neptune': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' }
 };
 
-const PARAMS = { count: 120000, size: 0.25, radius: 14, branches: 5, spin: 1.2, randomness: 0.35, randomnessPower: 3, coreColor: '#ffebd6', midColor: '#00d2ff', outsideColor: '#001155' };
+const PARAMS = { 
+    starsCount: 80000, 
+    dustCount: 150000,
+    radius: 16, 
+    branches: 4, 
+    spin: 1.5, 
+    randomness: 0.25, 
+    randomnessPower: 3.5, 
+    coreColor: '#ffe4c4', // Warm whitish-orange core (Milky Way)
+    midColor: '#00d2ff', // Cyan mid-arms
+    outsideColor: '#000a33' // Deep dark blue edges
+};
 
 let scene, camera, renderer, controls, composer, textureLoader, bloomPass;
-let galaxyPoints, raycaster, mouse;
+let galaxyPoints, dustPoints, raycaster, mouse;
 let infoPanel, starNameEl, distanceEl, systemTypeEl, planetListEl, regionDescEl, starImgEl, travelTimeEl;
 let systemGroup;
 
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(18, 6, 18);
+    camera.position.set(20, 12, 20);
     const canvas = document.querySelector('#galaxy-canvas');
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ReinhardToneMapping;
     textureLoader = new THREE.TextureLoader();
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.6, 0.85);
+    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.6, 0.5, 0.85);
     composer.addPass(bloomPass);
 
     controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
     controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
+    controls.maxDistance = 60;
+    controls.minDistance = 2;
     raycaster = new THREE.Raycaster();
-    raycaster.params.Points.threshold = 0.05;
+    raycaster.params.Points.threshold = 0.2;
     mouse = new THREE.Vector2();
 
     infoPanel = document.getElementById('info-panel');
@@ -125,73 +139,100 @@ function handleSearch(query) {
     }
 }
 
-function createGalaxy() {
-    if(galaxyPoints) { scene.remove(galaxyPoints); galaxyPoints.geometry.dispose(); galaxyPoints.material.dispose(); }
+function generateGalaxyGeometry(count) {
     const geometry = new THREE.BufferGeometry();
-    const pos = new Float32Array(PARAMS.count * 3), col = new Float32Array(PARAMS.count * 3);
+    const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
     const cCore = new THREE.Color(PARAMS.coreColor);
     const cMid = new THREE.Color(PARAMS.midColor);
     const cOut = new THREE.Color(PARAMS.outsideColor);
     
-    for (let i = 0; i < PARAMS.count; i++) {
-        const i3 = i * 3, r = Math.random() * PARAMS.radius;
+    for (let i = 0; i < count; i++) {
+        const i3 = i * 3;
+        
+        // Use an exponential/logarithmic distribution to cluster at center
+        const r = Math.pow(Math.random(), 1.5) * PARAMS.radius;
         const spinAngle = r * PARAMS.spin;
         const branchAngle = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
         
-        const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
-        const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r * 0.3;
-        const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+        // Taper randomness towards the center for a dense core
+        const taper = r / PARAMS.radius;
+        const randSpread = PARAMS.randomness * taper;
+        
+        const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r;
+        const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r * 0.2; // Very flat disk
+        const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * randSpread * r;
 
         pos[i3] = Math.cos(branchAngle + spinAngle) * r + randomX;
-        pos[i3 + 1] = randomY;
+        pos[i3 + 1] = randomY + (Math.random() - 0.5) * 0.1 * (1 - taper); // Central bulge thickness
         pos[i3 + 2] = Math.sin(branchAngle + spinAngle) * r + randomZ;
         
         let mixColor = new THREE.Color();
-        const distRatio = r / PARAMS.radius;
-        if(distRatio < 0.25) {
-            mixColor.copy(cCore).lerp(cMid, distRatio / 0.25);
+        if(taper < 0.2) {
+            mixColor.copy(cCore).lerp(cMid, taper / 0.2);
         } else {
-            mixColor.copy(cMid).lerp(cOut, (distRatio - 0.25) / 0.75);
+            mixColor.copy(cMid).lerp(cOut, (taper - 0.2) / 0.8);
         }
         
         col[i3] = mixColor.r; col[i3 + 1] = mixColor.g; col[i3 + 2] = mixColor.b;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    
-    const ptCanvas = document.createElement('canvas'); ptCanvas.width = 32; ptCanvas.height = 32;
-    const ctx = ptCanvas.getContext('2d');
-    const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-    grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad; ctx.fillRect(0,0,32,32);
-    const ptTex = new THREE.CanvasTexture(ptCanvas);
+    return geometry;
+}
 
-    galaxyPoints = new THREE.Points(geometry, new THREE.PointsMaterial({ 
-        size: PARAMS.size, 
+function createGalaxy() {
+    if(galaxyPoints) { scene.remove(galaxyPoints); galaxyPoints.geometry.dispose(); galaxyPoints.material.dispose(); }
+    if(dustPoints) { scene.remove(dustPoints); dustPoints.geometry.dispose(); dustPoints.material.dispose(); }
+    
+    // 1. DUST CLOUDS (Large, soft, highly transparent)
+    const dustGeo = generateGalaxyGeometry(PARAMS.dustCount);
+    const ptCanvas = document.createElement('canvas'); ptCanvas.width = 64; ptCanvas.height = 64;
+    const ctx = ptCanvas.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.3, 'rgba(255,255,255,0.4)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,64,64);
+    const dustTex = new THREE.CanvasTexture(ptCanvas);
+
+    dustPoints = new THREE.Points(dustGeo, new THREE.PointsMaterial({ 
+        size: 0.6, // Large clouds
         sizeAttenuation: true, 
         depthWrite: false, 
         blending: THREE.AdditiveBlending, 
         vertexColors: true, 
         transparent: true, 
-        opacity: 0.6,
-        map: ptTex
+        opacity: 0.15,
+        map: dustTex
+    }));
+    scene.add(dustPoints);
+
+    // 2. SHARP STARS (Tiny, sharp, opaque)
+    const starGeo = generateGalaxyGeometry(PARAMS.starsCount);
+    galaxyPoints = new THREE.Points(starGeo, new THREE.PointsMaterial({ 
+        size: 0.015, // Tiny pinpricks
+        sizeAttenuation: true, 
+        depthWrite: false, 
+        blending: THREE.AdditiveBlending, 
+        vertexColors: true, 
+        transparent: true, 
+        opacity: 0.9
     }));
     scene.add(galaxyPoints);
     
-    // Central Mass Effect Glow
+    // 3. CENTRAL BULGE GLOW (Mass Effect Core)
     const coreGlowCanvas = document.createElement('canvas'); coreGlowCanvas.width = 256; coreGlowCanvas.height = 256;
     const ctxC = coreGlowCanvas.getContext('2d');
     const gradC = ctxC.createRadialGradient(128, 128, 0, 128, 128, 128);
-    gradC.addColorStop(0, 'rgba(255, 230, 180, 1)');
-    gradC.addColorStop(0.15, 'rgba(255, 200, 100, 0.6)');
-    gradC.addColorStop(0.4, 'rgba(0, 170, 255, 0.2)');
+    gradC.addColorStop(0, 'rgba(255, 240, 200, 1)');
+    gradC.addColorStop(0.2, 'rgba(255, 210, 140, 0.7)');
+    gradC.addColorStop(0.5, 'rgba(0, 180, 255, 0.2)');
     gradC.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctxC.fillStyle = gradC; ctxC.fillRect(0,0,256,256);
     const coreTex = new THREE.CanvasTexture(coreGlowCanvas);
     const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: coreTex, blending: THREE.AdditiveBlending, depthWrite: false }));
-    coreSprite.scale.set(12, 12, 1);
+    // Reduced core size so it doesn't wash out the arms
+    coreSprite.scale.set(6, 6, 1);
     galaxyPoints.add(coreSprite);
 }
 
@@ -263,6 +304,7 @@ function zoomToPlanet(starPos, starData, planetData) {
     systemGroup.position.copy(starPos); 
     systemGroup.visible = true;
     galaxyPoints.visible = false;
+    dustPoints.visible = false;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = false; });
     starNameEl.innerText = planetData.name; distanceEl.innerText = planetData.dist; systemTypeEl.innerText = 'Gezegen'; travelTimeEl.innerText = planetData.travelTime;
     planetListEl.innerHTML = `<li>${planetData.name} (Hedef)</li>`; regionDescEl.innerText = planetData.info;
@@ -276,6 +318,7 @@ function zoomTo(pos, data) {
     bloomPass.strength = 1.0;
     controls.autoRotate = false; updateLocalSystem(data); systemGroup.position.copy(pos); systemGroup.visible = true;
     galaxyPoints.visible = true;
+    dustPoints.visible = true;
     scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; });
     starNameEl.innerText = data.name; systemTypeEl.innerText = data.type; travelTimeEl.innerText = data.travelTime;
     distanceEl.innerText = data.name === 'Güneş Sistemi' ? '0 km' : (pos.distanceTo(new THREE.Vector3(7.8,0,2.5)) * 2500).toFixed(0) + " Işık Yılı";
@@ -286,7 +329,7 @@ function zoomTo(pos, data) {
     gsap.to(controls.target, { x: pos.x, y: pos.y, z: pos.z, duration: 2.5, ease: 'power3.inOut' });
 }
 
-function resetView() { bloomPass.strength = 1.8; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 18, y: 6, z: 18, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
+function resetView() { bloomPass.strength = 1.6; infoPanel.classList.add('hidden'); systemGroup.visible = false; galaxyPoints.visible = true; dustPoints.visible = true; scene.children.forEach(c => { if(c.name === "RealStar") c.visible = true; }); controls.autoRotate = true; gsap.to(camera.position, { x: 20, y: 12, z: 20, duration: 2.5, ease: 'power3.inOut' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'power3.inOut' }); }
 function onMouseMove(e) { mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1; }
 function onWindowResize() { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); }
 function animate() { requestAnimationFrame(animate); controls.update(); if(systemGroup.visible) systemGroup.rotation.y += 0.005; composer.render(); }
