@@ -42,17 +42,18 @@ const REAL_STARS = [
     }
 ];
 
+const base = import.meta.env.BASE_URL;
 const PLANET_DATA = {
-    'merkür': { name: 'Merkür', dist: '91 Milyon km', travelTime: '3-6 Ay', info: 'Güneşe en yakın gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg', parent: 'Güneş Sistemi', index: 1, tex: 'textures/moon.jpg' }, 
-    'venüs': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg', parent: 'Güneş Sistemi', index: 1.5, tex: 'textures/venus.jpg' },
-    'venus': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg', parent: 'Güneş Sistemi', index: 1.5, tex: 'textures/venus.jpg' },
-    'dünya': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg', parent: 'Güneş Sistemi', index: 2, tex: 'textures/earth.jpg' },
-    'earth': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg', parent: 'Güneş Sistemi', index: 2, tex: 'textures/earth.jpg' },
-    'ay': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg', parent: 'Güneş Sistemi', index: 2.2, tex: 'textures/moon.jpg' },
-    'moon': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg', parent: 'Güneş Sistemi', index: 2.2, tex: 'textures/moon.jpg' },
-    'mars': { name: 'Mars', dist: '78 Milyon km', travelTime: '6-9 Ay', info: 'Kızıl gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg', parent: 'Güneş Sistemi', index: 3, tex: 'textures/mars.jpg' },
-    'jüpiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: 'textures/jupiter.jpg' },
-    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: 'textures/jupiter.jpg' }
+    'merkür': { name: 'Merkür', dist: '91 Milyon km', travelTime: '3-6 Ay', info: 'Güneşe en yakın gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg', parent: 'Güneş Sistemi', index: 1, tex: base + 'textures/moon.jpg' }, 
+    'venüs': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg', parent: 'Güneş Sistemi', index: 1.5, tex: base + 'textures/venus.jpg' },
+    'venus': { name: 'Venüs', dist: '41 Milyon km', travelTime: '3-4 Ay', info: 'Güneş sisteminin en sıcak gezegeni.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg', parent: 'Güneş Sistemi', index: 1.5, tex: base + 'textures/venus.jpg' },
+    'dünya': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg', parent: 'Güneş Sistemi', index: 2, tex: base + 'textures/earth.jpg' },
+    'earth': { name: 'Dünya', dist: '0 km', travelTime: '0 (Buradasınız)', info: 'Yaşamın bilinen tek adresi.', img: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg', parent: 'Güneş Sistemi', index: 2, tex: base + 'textures/earth.jpg' },
+    'ay': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg', parent: 'Güneş Sistemi', index: 2.2, tex: base + 'textures/moon.jpg' },
+    'moon': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg', parent: 'Güneş Sistemi', index: 2.2, tex: base + 'textures/moon.jpg' },
+    'mars': { name: 'Mars', dist: '78 Milyon km', travelTime: '6-9 Ay', info: 'Kızıl gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg', parent: 'Güneş Sistemi', index: 3, tex: base + 'textures/mars.jpg' },
+    'jüpiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: base + 'textures/jupiter.jpg' },
+    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: base + 'textures/jupiter.jpg' }
 };
 
 const PARAMS = { count: 250000, size: 0.008, radius: 12, branches: 4, spin: 0.8, randomness: 0.25, randomnessPower: 3, insideColor: '#ffbb77', outsideColor: '#3d61ff' };
