@@ -19,8 +19,8 @@ const REAL_STARS = [
         img: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Planets2013.jpg'
     },
     { 
-        name: 'Saggitarius A*', 
-        aliases: ['merkez', 'kara delik', 'center', 'black hole', 'sagittarius'], 
+        name: 'Sagittarius A*', 
+        aliases: ['merkez', 'kara delik', 'center', 'black hole', 'sagittarius', 'sagitarius', 'saggitarius', 'yay'], 
         dist: 26000, 
         pos: { x: 0, y: 0, z: 0 }, 
         type: 'Süper Kütleli Kara Delik', 
