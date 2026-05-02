@@ -52,7 +52,13 @@ const PLANET_DATA = {
     'moon': { name: 'Ay', dist: '384.400 km', travelTime: '3 Gün', info: 'Dünyanın doğal uydusu.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg', parent: 'Güneş Sistemi', index: 2.2, tex: '/textures/moon.jpg' },
     'mars': { name: 'Mars', dist: '78 Milyon km', travelTime: '6-9 Ay', info: 'Kızıl gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg', parent: 'Güneş Sistemi', index: 3, tex: '/textures/mars.jpg' },
     'jüpiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: '/textures/jupiter.jpg' },
-    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: '/textures/jupiter.jpg' }
+    'jupiter': { name: 'Jüpiter', dist: '628 Milyon km', travelTime: '6 Yıl', info: 'Dev gaz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg', parent: 'Güneş Sistemi', index: 4, tex: '/textures/jupiter.jpg' },
+    'satürn': { name: 'Satürn', dist: '1.2 Milyar km', travelTime: '7 Yıl', info: 'Halkalı gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg', parent: 'Güneş Sistemi', index: 5, tex: '/textures/saturn.jpg' },
+    'saturn': { name: 'Satürn', dist: '1.2 Milyar km', travelTime: '7 Yıl', info: 'Halkalı gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg', parent: 'Güneş Sistemi', index: 5, tex: '/textures/saturn.jpg' },
+    'uranüs': { name: 'Uranüs', dist: '2.6 Milyar km', travelTime: '9 Yıl', info: 'Buz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg', parent: 'Güneş Sistemi', index: 6, tex: '/textures/uranus.jpg' },
+    'uranus': { name: 'Uranüs', dist: '2.6 Milyar km', travelTime: '9 Yıl', info: 'Buz devi.', img: 'https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg', parent: 'Güneş Sistemi', index: 6, tex: '/textures/uranus.jpg' },
+    'neptün': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' },
+    'neptune': { name: 'Neptün', dist: '4.3 Milyar km', travelTime: '12 Yıl', info: 'En uzak gezegen.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', parent: 'Güneş Sistemi', index: 7, tex: '/textures/neptune.jpg' }
 };
 
 const PARAMS = { count: 250000, size: 0.008, radius: 12, branches: 4, spin: 0.8, randomness: 0.25, randomnessPower: 3, insideColor: '#ffbb77', outsideColor: '#3d61ff' };
