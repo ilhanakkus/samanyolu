@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samanyolu Galaksisi | İnteraktif Simülasyon</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="galaxy-canvas"></canvas>
+
+    <div id="ui-container">
+        <header>
+            <h1>Samanyolu Gezgini</h1>
+            <div id="search-container">
+                <input type="text" id="star-search" placeholder="Gezegen veya yıldız ara... (Örn: Dünya, Güneş, Kepler)">
+                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </div>
+            <p>Galaksinin derinliklerini keşfetmek için yıldızlara dokun veya arama yap.</p>
+        </header>
+
+        <div id="info-panel" class="hidden">
+            <div class="panel-content">
+                <h2 id="star-name">Yıldız Kümesi</h2>
+                <div id="star-image-container">
+                    <img id="star-image" src="" alt="Gök Cismi" class="hidden">
+                </div>
+                <div class="stat-item">
+                    <span class="label">Dünya'ya Uzaklık:</span>
+                    <span id="distance" class="value">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Sistem Tipi:</span>
+                    <span id="system-type" class="value">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Yolculuk Süresi:</span>
+                    <span id="travel-time" class="value">-</span>
+                </div>
+                <hr>
+                <h3>Keşfedilen Gezegenler</h3>
+                <ul id="planet-list">
+                    <!-- Gezegenler buraya eklenecek -->
+                </ul>
+                <div id="region-description">
+                    Bu bölge, galaksinin yoğun yıldız oluşum bölgelerinden biridir.
+                </div>
+            </div>
+            <button id="close-panel">Kapat</button>
+        </div>
+
+        <footer>
+            <div class="hint">Kaydırmak için sürükle, yakınlaşmak için kaydır</div>
+        </footer>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
