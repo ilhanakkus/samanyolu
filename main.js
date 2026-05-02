@@ -62,11 +62,15 @@ const PLANET_DATA = {
 };
 
 const PARAMS = { 
+    count: 200000, 
+    size: 0.08, 
     radius: 18, 
-    branches: 4, 
-    spin: 1.2, 
-    randomness: 0.35, 
-    randomnessPower: 3.5 
+    branches: 3, 
+    spin: 1.0, 
+    randomness: 0.25, 
+    randomnessPower: 3.5,
+    insideColor: '#ff5533', // Warm fiery core
+    outsideColor: '#1b3984' // Deep cosmic blue
 };
 
 let scene, camera, renderer, controls, composer, textureLoader, bloomPass;
@@ -77,7 +81,7 @@ let systemGroup;
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(15, 10, 20); // Elevated angle to see the spiral clearly
+    camera.position.set(10, 15, 20); // Perfect angled view
     const canvas = document.querySelector('#galaxy-canvas');
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -86,7 +90,7 @@ function init() {
     textureLoader = new THREE.TextureLoader();
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85); // Balanced bloom
+    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85); // Gentle bloom, not overpowering
     composer.addPass(bloomPass);
 
     controls = new OrbitControls(camera, canvas);
@@ -137,109 +141,56 @@ function handleSearch(query) {
 function createGalaxy() {
     if(galaxyPoints) { scene.remove(galaxyPoints); galaxyPoints.geometry.dispose(); galaxyPoints.material.dispose(); }
     
-    const count = 250000;
     const geometry = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
+    const pos = new Float32Array(PARAMS.count * 3);
+    const col = new Float32Array(PARAMS.count * 3);
     
-    const colorCore = new THREE.Color('#fff0d0'); // Very hot white-yellow
-    const colorBulge = new THREE.Color('#ffb366'); // Warm orange bulge
-    const colorArm = new THREE.Color('#33aaff'); // Bright cyan/blue arms
-    const colorDust = new THREE.Color('#883311'); // Dark brown/red dust lanes
-    const colorEdge = new THREE.Color('#001155'); // Deep blue space fade
+    const colorInside = new THREE.Color(PARAMS.insideColor);
+    const colorOutside = new THREE.Color(PARAMS.outsideColor);
 
-    for(let i=0; i<count; i++) {
+    for(let i=0; i<PARAMS.count; i++) {
         const i3 = i * 3;
         
-        // Distribution: 25% core bulge, 75% arms
-        const isCore = i < count * 0.25;
+        const r = Math.random() * PARAMS.radius;
+        const spinAngle = r * PARAMS.spin;
+        const branchAngle = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
         
-        if (isCore) {
-            // Core bulge (dense ellipsoid)
-            const r = Math.pow(Math.random(), 1.5) * 4.5;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-            
-            pos[i3] = r * Math.sin(phi) * Math.cos(theta) * 1.5; // Elongated along X
-            pos[i3+1] = r * Math.cos(phi) * 0.3; // Flattened along Y
-            pos[i3+2] = r * Math.sin(phi) * Math.sin(theta);
-            
-            const mix = new THREE.Color().copy(colorCore).lerp(colorBulge, r / 4.5);
-            col[i3] = mix.r; col[i3+1] = mix.g; col[i3+2] = mix.b;
-        } else {
-            // Spiral Arms
-            const r = (Math.random() * 0.9 + 0.1) * PARAMS.radius; // Don't start exactly at 0
-            const spinAngle = r * PARAMS.spin;
-            const branchAngle = (i % PARAMS.branches) / PARAMS.branches * Math.PI * 2;
-            
-            // 20% of arm particles are trailing "dust lanes"
-            const isDust = Math.random() < 0.2;
-            const angleOffset = isDust ? -0.2 : 0;
-            
-            // Spread formula
-            const spread = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
-            
-            pos[i3] = Math.cos(branchAngle + spinAngle + angleOffset) * r + spread;
-            pos[i3+1] = (Math.random() - 0.5) * 0.8 * Math.max(1 - (r/PARAMS.radius), 0.1); // Disk tapers at edges
-            pos[i3+2] = Math.sin(branchAngle + spinAngle + angleOffset) * r + spread;
-            
-            let mix;
-            if (isDust) {
-                mix = colorDust.clone().lerp(colorEdge, r / PARAMS.radius);
-            } else {
-                mix = colorArm.clone().lerp(colorEdge, r / PARAMS.radius);
-            }
-            
-            // Blend inner arms with warm bulge color
-            if(r < 6) {
-                mix.lerp(colorBulge, 1 - (r/6));
-            }
-            
-            col[i3] = mix.r; col[i3+1] = mix.g; col[i3+2] = mix.b;
-        }
+        const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+        const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+        const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * PARAMS.randomness * r;
+
+        pos[i3] = Math.cos(branchAngle + spinAngle) * r + randomX;
+        pos[i3+1] = randomY * 0.2; // Flattened disk
+        pos[i3+2] = Math.sin(branchAngle + spinAngle) * r + randomZ;
+        
+        const mixColor = colorInside.clone();
+        mixColor.lerp(colorOutside, r / PARAMS.radius);
+        
+        col[i3] = mixColor.r; col[i3+1] = mixColor.g; col[i3+2] = mixColor.b;
     }
     
     geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
     
-    // Create soft glowing circular texture
-    const ptCanvas = document.createElement('canvas'); ptCanvas.width = 32; ptCanvas.height = 32;
+    const ptCanvas = document.createElement('canvas'); ptCanvas.width = 16; ptCanvas.height = 16;
     const ctx = ptCanvas.getContext('2d');
-    const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
     grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.3, 'rgba(255,255,255,0.7)');
     grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad; ctx.fillRect(0,0,32,32);
+    ctx.fillStyle = grad; ctx.fillRect(0,0,16,16);
     
     galaxyPoints = new THREE.Points(geometry, new THREE.PointsMaterial({
-        size: 0.15, // Medium size for continuous look without losing structure
+        size: PARAMS.size,
         sizeAttenuation: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         vertexColors: true,
         transparent: true,
-        opacity: 0.8,
+        opacity: 1.0,
         map: new THREE.CanvasTexture(ptCanvas)
     }));
     
     scene.add(galaxyPoints);
-    
-    // Add central bright glow sprite to amplify the core
-    const coreCanvas = document.createElement('canvas'); coreCanvas.width = 128; coreCanvas.height = 128;
-    const ctxCore = coreCanvas.getContext('2d');
-    const gradCore = ctxCore.createRadialGradient(64, 64, 0, 64, 64, 64);
-    gradCore.addColorStop(0, 'rgba(255, 240, 200, 1)');
-    gradCore.addColorStop(0.3, 'rgba(255, 180, 100, 0.5)');
-    gradCore.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctxCore.fillStyle = gradCore; ctxCore.fillRect(0,0,128,128);
-    
-    const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ 
-        map: new THREE.CanvasTexture(coreCanvas), 
-        blending: THREE.AdditiveBlending, 
-        depthWrite: false 
-    }));
-    coreSprite.scale.set(10, 10, 1);
-    galaxyPoints.add(coreSprite);
 }
 
 function createStarSystems() {
